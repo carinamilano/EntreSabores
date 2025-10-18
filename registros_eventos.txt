@@ -5,3 +5,4 @@
 2025-10-18 16:49:03;Mostrar carta;
 2025-10-18 16:50:58;Mostrar carta;
 2025-10-18 16:53:40;Mostrar carta;
+2025-10-18 17:18:28;Mostrar carta;

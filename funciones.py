@@ -78,8 +78,6 @@ def mostrar_carta(): #muestra los platos del menu con sus ingredientes y precio
             print(f"   🏷️ Tipo: {datos["tipo"]}")
             print(f"   🧂 Ingredientes:{datos["ingredientes"]}")
         print("\n")
-        print("\n")
-
     except IOError:
         print("Error con los archivos")
 
