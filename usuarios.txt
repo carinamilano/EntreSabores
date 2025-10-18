@@ -1,0 +1,2 @@
+admin;123
+mozo1;abc
