@@ -34,6 +34,5 @@
 2025-10-19 12:57:14;Mostrar stock de ingredientes;
 2025-10-19 12:57:33;Mostrar stock de ingredientes;
 2025-10-19 12:58:50;Mostrar stock de ingredientes;
-
 2025-10-19 13:09:48;Mostrar carta;
 2025-10-19 13:10:07;Mostrar stock de ingredientes;

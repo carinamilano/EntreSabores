@@ -193,26 +193,29 @@ def submenu_modificar_carta(carta,stock):
     
 
 #menu principal
-def menu_principal(carta,stock):
-    print("🍽️ ----- Menu EntreSabores ----- 🍷")
-    print("1️⃣  📜 Mostrar carta")  # platos / precio / ingredientes / tipo
-    print("2️⃣  🧺 Mostrar stock de ingredientes")
-    print("3️⃣  ✏️ Modificar carta")  # submenú con agregar / eliminar / modificar
-    print("4️⃣  📊 Ver reportes")
-    print("0️⃣  🚪 Salir")
+def menu_principal(carta, stock):
+    print("\n🍷 ----- Menu EntreSabores ----- 🍷")
+    print(" 1️⃣  Tomar pedido")
+    print(" 2️⃣  📜 Mostrar carta")               # platos / precio / ingredientes / tipo
+    print(" 3️⃣  📦 Mostrar stock de ingredientes")
+    print(" 4️⃣  ✏️  Modificar carta")            # submenú con agregar / eliminar / modificar
+    print(" 5️⃣  📊 Ver reportes")
+    print(" 0️⃣  🚪 Salir")
 
     opcion = numeroEntreRango(0, 5, "Ingrese una opción: ")
-
     if opcion == 1:
+        registrar_evento("Tomar pedido")
+        tomar_pedido(carta,stock)
+    elif opcion == 2:
         registrar_evento("Mostrar carta")
         mostrar_carta(carta,stock)
-    elif opcion == 2:
+    elif opcion == 3:
         registrar_evento("Mostrar stock de ingredientes")
         mostrar_stock(stock)
-    elif opcion == 3:
+    elif opcion == 4:
         registrar_evento("Modificar carta")
         submenu_modificar_carta(carta,stock)
-    elif opcion == 4:
+    elif opcion == 5:
         registrar_evento("Ver reportes")
         # ver_reportes()
 
