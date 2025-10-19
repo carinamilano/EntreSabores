@@ -55,7 +55,7 @@ def numeroEntreRango(num1, num2, texto):
             print("Error, debe ingresar opción válida")
             continue
 
-# función generica para ingresar un único número
+# función GENERICA para ingresar un único número
 def ingresar_num_entero(num,texto):
     while True:
         try:
@@ -77,83 +77,17 @@ def registrar_evento(opcion, archivo="registros_eventos.txt"):
     except IOError:
         print("No se pudo crear registro de logs")
 
-def mostrar_carta(): #muestra los platos del menu con sus ingredientes y precio
+
+# GESTIÓN DEL ARCHIVO JSON
+def cargar_carta():
+#Carga la carta desde carta.json. Si no existe, crea una carta base con 10 platos iniciales
     try:
-        arch=open("menu.json","rt", encoding="utf-8")
-        menu=json.load(arch)
-        arch.close()
-        print("\n📜 ----- CARTA DE PLATOS ----- 📜")
-        for plato, datos in menu.items():
-            print(f"\n🍽️ {plato.upper()}")
-            print(f"   💲 Precio: ${datos['precio']:.2f}")
-            print(f"   🏷️ Tipo: {datos['tipo']}")
-            print(f"   🧂 Ingredientes:{datos['ingredientes']}")
-        print("\n")
-
-        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
-        if volver == 0:
-            menu_principal()
-
-    except IOError:
-        print("Error con los archivos")
-
-def submenu_modificar_carta():
-    print("----MODIFICAR CARTA----")
-    print ("1. Agregar plato")
-    print ("2. Eliminar plato")
-    print ("3. Modificar plato")
-    print ("0. Salir")
-
-    opcion = numeroEntreRango (0,3,"Ingrese una opción: ")
-    if opcion == 0:
-        registrar_evento ("Menú principal")
-        menu_principal()
-        
-    elif opcion == 1:
-        registrar_evento ("Agregar plato")
-        #agregar_plato()
-    elif opcion == 2:
-        registrar_evento ("Eliminar plato")
-        #eliminar_plato()
-    elif opcion == 3:
-        registrar_evento ("Modificar plato")
-        #modificar_plato()
-    
-
-#menu principal
-def menu_principal():
-    print("🍽️ ----- Menú EntreSabores ----- 🍷")
-    print("1️⃣  📜 Mostrar carta")  # platos / precio / ingredientes / tipo
-    print("2️⃣  🧺 Mostrar stock de ingredientes")
-    print("3️⃣  ✏️  Modificar carta")  # submenú con agregar / eliminar / modificar
-    print("4️⃣  📊 Ver reportes")
-    print("0️⃣  🚪 Salir")
-
-    opcion = numeroEntreRango(0, 5, "Ingrese una opción: ")
-
-    if opcion == 1:
-        registrar_evento("Mostrar carta")
-        mostrar_carta()
-    elif opcion == 2:
-        registrar_evento("Mostrar stock de ingredientes")
-        # mostrar_stock()
-    elif opcion == 3:
-        registrar_evento("Modificar carta")
-        submenu_modificar_carta()
-    elif opcion == 4:
-        registrar_evento("Ver reportes")
-        # ver_reportes()
-
-# GESTIÓN DEL MENÚ JSON
-def cargar_menu():
-#Carga el menú desde menu.json. Si no existe, crea un menú base con 10 platos iniciales
-    try:
-        arch = open("menu.json", "rt", encoding="utf-8")
-        menu = json.load(arch)
+        arch = open("carta.json", "rt", encoding="utf-8")
+        carta = json.load(arch)
         arch.close()
     except FileNotFoundError:
-        print("No se encontró menu.json. Creando archivo con menú base...")
-        menu = {
+        print("No se encontró carta.json. Creando archivo con una carta base...")
+        carta = {
             "Milanesa con papas": {
                 "precio": 35500.00,
                 "ingredientes": {"carne": 1, "huevo": 1, "pan rallado": 1, "papas": 2},
@@ -205,15 +139,140 @@ def cargar_menu():
                 "tipo": "celíaco"
             }
         }
-        guardar_menu(menu)
-    return menu
+        guardar_carta(carta)
+    return carta
 
-def guardar_menu(menu):
+def guardar_carta(carta):
 #Guarda el menú actualizado en el archivo JSON
     try:
-        arch = open("menu.json", "wt", encoding="utf-8")
-        json.dump(menu, arch, indent=4, ensure_ascii=False) #dump="vuelca,graba", ensure_ascii=False: No conviertas los caracteres acentuados a códigos Unicode, dejalos tal cual
+        arch = open("carta.json", "wt", encoding="utf-8")
+        json.dump(carta, arch, indent=4, ensure_ascii=False) #dump="vuelca,graba", ensure_ascii=False: No conviertas los caracteres acentuados a códigos Unicode, dejalos tal cual
         arch.close()
-        print("Menú guardado correctamente.")
+        print("Carta guardada correctamente.")
     except IOError:
-        print("Error al guardar el menú.")
+        print("Error al guardar la carta.")
+
+def mostrar_carta(carta,stock): #muestra los platos de la carta con sus ingredientes y precio
+    try:
+        arch=open("carta.json","rt", encoding="utf-8")
+        carta=json.load(arch)
+        arch.close()
+        print("\n📜 ----- CARTA DE PLATOS ----- 📜")
+        for plato, datos in carta.items():
+            print(f"\n🍽️ {plato.upper()}")
+            print(f"   💲 Precio: ${datos['precio']:.2f}")
+            print(f"   🏷️ Tipo: {datos['tipo']}")
+            print(f"   🧂 Ingredientes:{datos['ingredientes']}")
+        print("\n")
+        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            menu_principal(carta,stock)
+    except IOError:
+        print("Error con los archivos")
+
+def submenu_modificar_carta(carta,stock):
+    print("----MODIFICAR CARTA----")
+    print ("1. Agregar plato")
+    print ("2. Eliminar plato")
+    print ("3. Modificar plato")
+    print ("0. Salir")
+
+    opcion = numeroEntreRango (0,3,"Ingrese una opción: ")
+    if opcion == 0:
+        registrar_evento ("Menú principal")
+        menu_principal(carta,stock)
+    elif opcion == 1:
+        registrar_evento ("Agregar plato")
+        #agregar_plato()
+    elif opcion == 2:
+        registrar_evento ("Eliminar plato")
+        #eliminar_plato()
+    elif opcion == 3:
+        registrar_evento ("Modificar plato")
+        #modificar_plato()
+    
+
+#menu principal
+def menu_principal(carta,stock):
+    print("🍽️ ----- Menu EntreSabores ----- 🍷")
+    print("1️⃣  📜 Mostrar carta")  # platos / precio / ingredientes / tipo
+    print("2️⃣  🧺 Mostrar stock de ingredientes")
+    print("3️⃣  ✏️ Modificar carta")  # submenú con agregar / eliminar / modificar
+    print("4️⃣  📊 Ver reportes")
+    print("0️⃣  🚪 Salir")
+
+    opcion = numeroEntreRango(0, 5, "Ingrese una opción: ")
+
+    if opcion == 1:
+        registrar_evento("Mostrar carta")
+        mostrar_carta(carta,stock)
+    elif opcion == 2:
+        registrar_evento("Mostrar stock de ingredientes")
+        mostrar_stock(stock)
+    elif opcion == 3:
+        registrar_evento("Modificar carta")
+        submenu_modificar_carta(carta,stock)
+    elif opcion == 4:
+        registrar_evento("Ver reportes")
+        # ver_reportes()
+
+
+
+def cargar_stock():
+    stock = {}
+    try:
+        arch = open("stock.csv", "rt", encoding="utf-8")
+        for linea in arch:
+            ingrediente, cantidad = linea.strip().split(",")
+            stock[ingrediente] = int(cantidad)
+        arch.close()
+    except IOError:
+        print(" No se encontró stock.csv. Se cargara stock basico......")
+        stock = {
+            "carne": 15,
+            "papas": 25,
+            "harina": 20,
+            "queso": 18,
+            "tomate": 15,
+            "cebolla": 10,
+            "quinoa": 12,
+            "zanahoria": 10,
+            "brocoli": 8,
+            "pollo": 12,
+            "arroz": 15,
+            "lechuga": 10,
+            "atun": 8,
+            "aceitunas": 6,
+            "huevo": 12,
+            "jamon": 10,
+            "pan": 20,
+            "palta": 8,
+            "panceta": 10
+        }
+        guardar_stock(stock)
+    return stock
+
+
+def guardar_stock(stock):
+    try:
+        arch = open("stock.csv", "wt", encoding="utf-8")
+        for ingr, cant in stock.items():
+            arch.write(f"{ingr},{cant}\n")
+        arch.close()
+        print("Archivo stock.csv guardado correctamente.")
+    except IOError:
+        print("Error al guardar el archivo de stock.")
+
+
+def mostrar_stock(stock):
+    try:
+        print("\n📦 STOCK DE INGREDIENTES 📦")
+        for ingrediente, cantidad in stock.items():
+            print(f"{ingrediente:<12}{cantidad:>3}")
+        print()
+        volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            return
+    except IOError:
+        print("Error con archivo")
+

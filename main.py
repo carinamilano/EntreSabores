@@ -1,12 +1,13 @@
 # PROGRAMA PRINCIPAL - ENTRE SABORES
 
-from funciones import generar_archivo_usuarios, log_in, menu_principal, cargar_menu
+from funciones import generar_archivo_usuarios, log_in, menu_principal, cargar_carta,guardar_stock,cargar_stock,mostrar_stock
 
 def main():
     generar_archivo_usuarios()
     #usuario = log_in()
-    cargar_menu() #esto esta asi para probar pero luego hay que asignarlo a una variable para poder trabajr con el dicc
-    menu_principal()
+    stock = cargar_stock()
+    carta = cargar_carta()
+    menu_principal(carta,stock)
 
 if __name__ == "__main__":
     main()
