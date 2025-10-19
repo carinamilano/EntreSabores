@@ -6,3 +6,14 @@
 2025-10-18 16:50:58;Mostrar carta;
 2025-10-18 16:53:40;Mostrar carta;
 2025-10-18 17:18:28;Mostrar carta;
+2025-10-19 00:56:41;Mostrar carta;
+2025-10-19 01:01:06;Mostrar carta;
+2025-10-19 01:03:41;Modificar carta;
+2025-10-19 01:03:44;Agregar plato;
+2025-10-19 01:03:49;Modificar carta;
+2025-10-19 01:04:23;Generar archivos de usuario;
+2025-10-19 01:04:31;Mostrar carta;
+2025-10-19 01:04:33;Modificar carta;
+2025-10-19 01:04:36;Menú principal;
+2025-10-19 01:04:42;Modificar carta;
+2025-10-19 01:04:45;Menú principal;

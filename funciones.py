@@ -10,7 +10,7 @@ def log_in():
         contrasena = input("Ingrese contraseña: ")
         encontrado = False
         try:
-            arch = open("usuarios.txt", "rt")
+            arch = open("usuarios.txt", "rt",encoding="utf-8")
         except IOError:
             print("Error! No se pudo abrir el archivo de usuarios")
         else:
@@ -55,12 +55,23 @@ def numeroEntreRango(num1, num2, texto):
             print("Error, debe ingresar opción válida")
             continue
 
+# función generica para ingresar un único número
+def ingresar_num_entero(num,texto):
+    while True:
+        try:
+            n = int (input (texto))
+            if n != num:
+                raise ValueError
+            return n
+        except ValueError:
+            print ("Error! Opción no válida")
+            continue
 
 #el log
 def registrar_evento(opcion, archivo="registros_eventos.txt"):
     try:
         marca = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        arch = open(archivo, "at")
+        arch = open(archivo, "at",encoding="utf-8")
         arch.write(marca + ";" + opcion + ";" + "\n")
         arch.close()
     except IOError:
@@ -74,13 +85,40 @@ def mostrar_carta(): #muestra los platos del menu con sus ingredientes y precio
         print("\n📜 ----- CARTA DE PLATOS ----- 📜")
         for plato, datos in menu.items():
             print(f"\n🍽️ {plato.upper()}")
-            print(f"   💲 Precio: ${datos["precio"]:.2f}")
-            print(f"   🏷️ Tipo: {datos["tipo"]}")
-            print(f"   🧂 Ingredientes:{datos["ingredientes"]}")
+            print(f"   💲 Precio: ${datos['precio']:.2f}")
+            print(f"   🏷️ Tipo: {datos['tipo']}")
+            print(f"   🧂 Ingredientes:{datos['ingredientes']}")
         print("\n")
+
+        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            menu_principal()
+
     except IOError:
         print("Error con los archivos")
 
+def submenu_modificar_carta():
+    print("----MODIFICAR CARTA----")
+    print ("1. Agregar plato")
+    print ("2. Eliminar plato")
+    print ("3. Modificar plato")
+    print ("0. Salir")
+
+    opcion = numeroEntreRango (0,3,"Ingrese una opción: ")
+    if opcion == 0:
+        registrar_evento ("Menú principal")
+        menu_principal()
+        
+    elif opcion == 1:
+        registrar_evento ("Agregar plato")
+        #agregar_plato()
+    elif opcion == 2:
+        registrar_evento ("Eliminar plato")
+        #eliminar_plato()
+    elif opcion == 3:
+        registrar_evento ("Modificar plato")
+        #modificar_plato()
+    
 
 #menu principal
 def menu_principal():
@@ -96,15 +134,12 @@ def menu_principal():
     if opcion == 1:
         registrar_evento("Mostrar carta")
         mostrar_carta()
-        menu_principal()
-        # mostrar_carta()
     elif opcion == 2:
         registrar_evento("Mostrar stock de ingredientes")
-        menu_principal()
         # mostrar_stock()
     elif opcion == 3:
         registrar_evento("Modificar carta")
-        # modificar_carta()
+        submenu_modificar_carta()
     elif opcion == 4:
         registrar_evento("Ver reportes")
         # ver_reportes()
