@@ -7,7 +7,9 @@ def main():
     #usuario = log_in()
     stock = cargar_stock()
     carta = cargar_carta()
-    menu_principal(carta,stock)
+    pedidos = {}
+
+    menu_principal(carta,stock, pedidos)
 
 if __name__ == "__main__":
     main()

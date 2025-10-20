@@ -152,7 +152,7 @@ def guardar_carta(carta):
     except IOError:
         print("Error al guardar la carta.")
 
-def mostrar_carta(carta,stock): #muestra los platos de la carta con sus ingredientes y precio
+def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus ingredientes y precio
     try:
         arch=open("carta.json","rt", encoding="utf-8")
         carta=json.load(arch)
@@ -164,13 +164,10 @@ def mostrar_carta(carta,stock): #muestra los platos de la carta con sus ingredie
             print(f"   🏷️ Tipo: {datos['tipo']}")
             print(f"   🧂 Ingredientes:{datos['ingredientes']}")
         print("\n")
-        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
-        if volver == 0:
-            menu_principal(carta,stock)
     except IOError:
         print("Error con los archivos")
 
-def submenu_modificar_carta(carta,stock):
+def submenu_modificar_carta(carta,stock,pedidos):
     print("----MODIFICAR CARTA----")
     print ("1. Agregar plato")
     print ("2. Eliminar plato")
@@ -180,7 +177,7 @@ def submenu_modificar_carta(carta,stock):
     opcion = numeroEntreRango (0,3,"Ingrese una opción: ")
     if opcion == 0:
         registrar_evento ("Menú principal")
-        menu_principal(carta,stock)
+        menu_principal(carta, stock,pedidos)
     elif opcion == 1:
         registrar_evento ("Agregar plato")
         #agregar_plato()
@@ -191,9 +188,126 @@ def submenu_modificar_carta(carta,stock):
         registrar_evento ("Modificar plato")
         #modificar_plato()
     
+def tomar_pedido(carta, stock, pedidos):
+    while True:
+        try:
+            num_mesa = int(input("Ingrese el número de mesa(1-10). 0 para volver al menú: "))
+            if num_mesa == 0:
+                break
+
+            elif num_mesa <1 or num_mesa >10:
+                raise ValueError
+        except ValueError:
+            print("Número de mesa inválido")
+            continue
+
+        if num_mesa not in pedidos:
+            pedidos[num_mesa] = {}  # crear nueva entrada para la mesa
+
+        carrito = {}  # plato -> cantidad pedida en esta sesión
+
+        mostrar_carta(carta,stock,pedidos)
+
+        while True:
+            plato = input("Ingrese el nombre del plato (0 para terminar): ").strip()
+            if plato == "0":
+                break
+
+            if plato not in carta:
+                print("Plato inexistente, intente de nuevo")
+                continue
+
+            try:
+                cantidad = int(input(f"Ingrese la cantidad de '{plato}': "))
+                if cantidad <= 0:
+                    print("Cantidad debe ser mayor a cero")
+                    continue
+            except ValueError:
+                print("Cantidad inválida")
+                continue
+
+            # cargar stock desde CSV k
+            stock_dict = {}
+            try:
+                arch_stock = open("stock.csv", "rt", encoding="utf-8")
+            except IOError:
+                print("No se pudo abrir stock.csv")
+                return
+            else:
+                for linea in arch_stock:
+                    linea = linea.strip()
+                    if linea == "":
+                        continue
+                    if ";" in linea:
+                        partes = linea.split(";")
+                    elif "," in linea:
+                        partes = linea.split(",")
+                    else:
+                        partes = linea.split()
+
+                    if len(partes) != 2:
+                        continue
+
+                    nombre = partes[0].strip().lower()
+                    if nombre == "ingrediente":
+                        continue  # salto encabezado
+                    try:
+                        cantidad_stock = int(partes[1].strip())
+                    except ValueError:
+                        continue
+                    stock_dict[nombre] = cantidad_stock
+                arch_stock.close()
+
+            # verificar stock suficiente
+            ingredientes_necesarios = carta[plato]["ingredientes"]
+            falta = []
+            for ingr, cant in ingredientes_necesarios.items():
+                if ingr.lower() not in stock_dict:
+                    falta.append(ingr)
+                elif stock_dict[ingr.lower()] < cant * cantidad:
+                    falta.append(ingr)
+
+            if falta:
+                print(f"No hay stock suficiente de: {', '.join(falta)}")
+                continue
+
+            # descontar stock
+            for ingr, cant in ingredientes_necesarios.items():
+                stock_dict[ingr.lower()] -= cant * cantidad
+
+            # actualizar CSV
+            try:
+                arch_stock = open("stock.csv", "wt", encoding="utf-8")
+            except IOError:
+                print("No se pudo actualizar stock.csv")
+            else:
+                arch_stock.write("ingrediente;cantidad\n")
+                for ingr, cant in stock_dict.items():
+                    arch_stock.write(f"{ingr};{cant}\n")
+                arch_stock.close()
+
+            # actualizar pedidos
+            if plato in pedidos[num_mesa]:
+                pedidos[num_mesa][plato] += cantidad
+            else:
+                pedidos[num_mesa][plato] = cantidad
+
+            print(f"Pedido agregado: {plato} x{cantidad}")
+
+        # mostrar resumen mesa
+        if pedidos[num_mesa]:
+            print(f"\n Pedido mesa {num_mesa}:")
+            total = 0
+            for plato, cant in pedidos[num_mesa].items():
+                precio = carta[plato]["precio"] * cant
+                total += precio
+                print(f"- {plato} x{cant} → ${precio}")
+            print(f"Total a pagar: ${total}")
+
+    return pedidos
 
 #menu principal
-def menu_principal(carta, stock, pedidos):
+def menu_principal(carta, stock,pedidos):
     print("\n🍷 ----- Menú EntreSabores ----- 🍷")
     print(" 1️⃣  🧾 Tomar pedido")
     print(" 2️⃣  💵 Cerrar mesa")
@@ -207,16 +321,20 @@ def menu_principal(carta, stock, pedidos):
 
     if opcion == 1:
         registrar_evento("Tomar pedido")
-        #tomar_pedido(carta, stock, pedidos)
+        pedido = tomar_pedido(carta, stock,pedidos)
+        menu_principal(carta, stock,pedidos)
     elif opcion == 2:
         registrar_evento("Cerrar mesa")
         #cerrar_mesa(pedidos)
     elif opcion == 3:
         registrar_evento("Mostrar carta")
-        mostrar_carta(carta,stock)
+        mostrar_carta(carta,stock,pedidos)
+        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            menu_principal(carta, stock,pedidos)
     elif opcion == 4:
         registrar_evento("Mostrar stock de ingredientes")
-        mostrar_stock(stock)
+        mostrar_carta(carta,stock,pedidos)
     elif opcion == 5:
         registrar_evento("Modificar carta")
         submenu_modificar_carta(carta,stock)
@@ -231,7 +349,7 @@ def cargar_stock():
     try:
         arch = open("stock.csv", "rt", encoding="utf-8")
         for linea in arch:
-            ingrediente, cantidad = linea.strip().split(",")
+            ingrediente, cantidad = linea.strip().split(";")
             stock[ingrediente] = int(cantidad)
         arch.close()
     except IOError:
@@ -255,7 +373,20 @@ def cargar_stock():
             "jamon": 10,
             "pan": 20,
             "palta": 8,
-            "panceta": 10
+            "panceta": 10,
+            "crema":15,
+            "pan rallado":10,
+            "brócoli": 10,
+            "soja": 12,
+            "calabaza":10,
+            "masa":11,
+            "croutons":8,
+            "lentejas":15,
+            "ajo":20,
+            "hongos":12,
+            "curry": 10,
+            "maíz": 11,
+            "porotos":15
         }
         guardar_stock(stock)
     return stock
@@ -265,14 +396,14 @@ def guardar_stock(stock):
     try:
         arch = open("stock.csv", "wt", encoding="utf-8")
         for ingr, cant in stock.items():
-            arch.write(f"{ingr},{cant}\n")
+            arch.write(f"{ingr};{cant}\n")
         arch.close()
         print("Archivo stock.csv guardado correctamente.")
     except IOError:
         print("Error al guardar el archivo de stock.")
 
 
-def mostrar_stock(stock):
+def mostrar_stock(carta,stock,pedidos):
     try:
         print("\n📦 STOCK DE INGREDIENTES 📦")
         for ingrediente, cantidad in stock.items():
@@ -280,7 +411,7 @@ def mostrar_stock(stock):
         print()
         volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
         if volver == 0:
-            return
+            menu_principal(carta, stock,pedidos)
     except IOError:
         print("Error con archivo")
 
