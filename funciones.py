@@ -50,10 +50,11 @@ def numeroEntreRango(num1, num2, texto):
             num = int(input(texto))
             if num < num1 or num > num2:
                 raise ValueError
-            return num
+            break
         except ValueError:
             print("Error, debe ingresar opción válida")
             continue
+    return num
 
 # función GENERICA para ingresar un único número
 def ingresar_num_entero(num,texto):
@@ -62,10 +63,35 @@ def ingresar_num_entero(num,texto):
             n = int (input (texto))
             if n != num:
                 raise ValueError
-            return n
+            break
         except ValueError:
             print ("Error! Opción no válida")
             continue
+    return n
+
+def ingresar_num_mayor_a(num_base,texto):
+    while True:
+        try:
+            num = int(input(texto))
+            if num < num_base:
+                raise ValueError
+            break
+        except ValueError:
+            print("Error, valor ingresado inválido")
+            continue
+    return num
+
+def ingresar_valor_float_positivo(texto):
+    while True:
+        try:
+            num = float(input(texto))
+            if num < 1:
+                raise ValueError
+            break
+        except ValueError:
+            print("Error, valor ingresado inválido")
+            continue
+    return num
 
 #el log
 def registrar_evento(opcion, archivo="registros_eventos.txt"):
@@ -167,6 +193,74 @@ def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus 
     except IOError:
         print("Error con los archivos")
 
+def agregar_plato():
+    try:
+        archLec = open ("stock.csv","rt")
+    except IOError:
+        print ("Error al cargar archivos")
+    else:
+        dic_ingredientes = {}
+        stock_nombres = []
+        for linea in archLec:
+            nombre, cantidad = linea.strip().split(";")
+            stock_nombres.append (nombre)
+        plato_a_agregar = input ("Ingrese el nombre del plato a agregar: ").strip().lower()
+        precio = ingresar_valor_float_positivo(f"Ingrese el precio de {plato_a_agregar}")
+
+        while True:
+            try: 
+                ingredientes = input (f"Ingrese los ingredientes que tiene {plato_a_agregar}. Vacío para dejar de cargar ingredientes: ").strip().lower()
+                
+                if ingredientes == "" and dic_ingredientes:
+                    break
+                elif not dic_ingredientes and ingredientes == "":
+                    print ("No se puede cargar un plato sin ingredientes.")
+                    continue
+
+                if ingredientes not in stock_nombres:
+                    raise ValueError
+                        
+                cantidad_ingredientes = ingresar_num_mayor_a(1,f"Ingrese la cantidad de {ingredientes} que lleva {plato_a_agregar}")
+
+                dic_ingredientes[ingredientes] = cantidad_ingredientes
+            
+            except ValueError:
+                print ("Ingrediente ingresado no válido")
+                continue
+        
+        tipo = numeroEntreRango (1,4,"Ingrese el tipo de plato: 1. Carnivoro | 2. Vegetariano | 3. Vegano | 4. Celíaco")
+        if tipo == 1:
+            plato_tipo = "carnivoro"
+        elif tipo == 2:
+            plato_tipo = "vegetariano"
+        elif tipo == 3:
+            plato_tipo = "vegano"
+        elif tipo == 4:
+            plato_tipo = "celíaco"
+
+        nueva_entrada = {plato_a_agregar: {
+        "precio": float(precio),
+        "ingredientes": dic_ingredientes,
+        "tipo": plato_tipo }}
+        archLec.close()
+        return nueva_entrada
+    
+def guardar_agregar_plato (nueva_entrada):
+    try:
+        arch = open("carta.json", "rt", encoding="utf-8")
+        datos = json.load(arch)
+        datos.update(nueva_entrada)
+
+        arch2 = open ("carta.json","wt",encoding="utf-8")
+        json.dump (datos,arch2,indent=4)
+
+        print("Plato nuevo agregado correctamente a la carta.")
+    except IOError:
+        print("Error al guardar la carta.")
+
+
+                        
+
 def submenu_modificar_carta(carta,stock,pedidos):
     print("----MODIFICAR CARTA----")
     print ("1. Agregar plato")
@@ -180,7 +274,8 @@ def submenu_modificar_carta(carta,stock,pedidos):
         menu_principal(carta, stock,pedidos)
     elif opcion == 1:
         registrar_evento ("Agregar plato")
-        #agregar_plato()
+        nueva_entrada = agregar_plato()
+        guardar_agregar_plato (nueva_entrada)
     elif opcion == 2:
         registrar_evento ("Eliminar plato")
         #eliminar_plato()
@@ -190,16 +285,9 @@ def submenu_modificar_carta(carta,stock,pedidos):
     
 def tomar_pedido(carta, stock, pedidos):
     while True:
-        try:
-            num_mesa = int(input("Ingrese el número de mesa(1-10). 0 para volver al menú: "))
-            if num_mesa == 0:
-                break
-
-            elif num_mesa <1 or num_mesa >10:
-                raise ValueError
-        except ValueError:
-            print("Número de mesa inválido")
-            continue
+        num_mesa = numeroEntreRango (1,10,"Ingrese el número de mesa(1-10). 0 para volver al menú: ")
+        if num_mesa == 0:
+            break
 
         if num_mesa not in pedidos:
             pedidos[num_mesa] = {}  # crear nueva entrada para la mesa
@@ -217,44 +305,17 @@ def tomar_pedido(carta, stock, pedidos):
                 print("Plato inexistente, intente de nuevo")
                 continue
 
-            try:
-                cantidad = int(input(f"Ingrese la cantidad de '{plato}': "))
-                if cantidad <= 0:
-                    print("Cantidad debe ser mayor a cero")
-                    continue
-            except ValueError:
-                print("Cantidad inválida")
-                continue
+            cantidad = ingresar_num_mayor_a(1,f"Ingrese la cantidad de '{plato}': ")
 
-            # cargar stock desde CSV k
+            # cargar stock desde CSV
             stock_dict = {}
             try:
                 arch_stock = open("stock.csv", "rt", encoding="utf-8")
             except IOError:
                 print("No se pudo abrir stock.csv")
-                return
             else:
                 for linea in arch_stock:
-                    linea = linea.strip()
-                    if linea == "":
-                        continue
-                    if ";" in linea:
-                        partes = linea.split(";")
-                    elif "," in linea:
-                        partes = linea.split(",")
-                    else:
-                        partes = linea.split()
-
-                    if len(partes) != 2:
-                        continue
-
-                    nombre = partes[0].strip().lower()
-                    if nombre == "ingrediente":
-                        continue  # salto encabezado
-                    try:
-                        cantidad_stock = int(partes[1].strip())
-                    except ValueError:
-                        continue
+                    nombre,cantidad_stock = linea.strip().split(";")
                     stock_dict[nombre] = cantidad_stock
                 arch_stock.close()
 
@@ -334,15 +395,13 @@ def menu_principal(carta, stock,pedidos):
             menu_principal(carta, stock,pedidos)
     elif opcion == 4:
         registrar_evento("Mostrar stock de ingredientes")
-        mostrar_carta(carta,stock,pedidos)
+        mostrar_stock(carta,stock,pedidos)
     elif opcion == 5:
         registrar_evento("Modificar carta")
-        submenu_modificar_carta(carta,stock)
+        submenu_modificar_carta(carta,stock,pedidos)
     elif opcion == 6:
         registrar_evento("Ver reportes")
         # ver_reportes()
-
-
 
 def cargar_stock():
     stock = {}
