@@ -107,39 +107,5 @@
         },
         "tipo": "cel\u00edaco"
     },
-    "11": {
-        "nombre": "Ratatuile",
-        "precio": 15000.0,
-        "ingredientes": {
-            "queso": 1,
-            "jamon": 2
-        },
-        "tipo": "vegetariano"
-    },
-    "12": {
-        "nombre": "",
-        "precio": 1.0,
-        "ingredientes": {
-            "carne": 5,
-            "queso": 10
-        },
-        "tipo": "carnivoro"
-    },
-    "9876": {
-        "nombre": "Jamon Y Quesooo",
-        "precio": 50000.0,
-        "ingredientes": {
-            "jamon": 10,
-            "queso": 55
-        },
-        "tipo": "carnivoro"
-    },
-    "22": {
-        "nombre": "Casca",
-        "precio": 23432.0,
-        "ingredientes": {
-            "carne": 1
-        },
-        "tipo": "carnivoro"
-    }
+
 }
