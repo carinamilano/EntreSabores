@@ -1,5 +1,6 @@
 {
-    "Milanesa con papas": {
+    "1": {
+        "nombre": "Milanesa con papas",
         "precio": 35500.0,
         "ingredientes": {
             "carne": 1,
@@ -7,9 +8,10 @@
             "pan rallado": 1,
             "papas": 2
         },
-        "tipo": "carnívoro"
+        "tipo": "carn\u00edvoro"
     },
-    "Pizza muzzarella": {
+    "2": {
+        "nombre": "Pizza muzzarella",
         "precio": 39500.5,
         "ingredientes": {
             "harina": 1,
@@ -18,16 +20,18 @@
         },
         "tipo": "vegetariano"
     },
-    "Bowl de quinoa": {
+    "3": {
+        "nombre": "Bowl de quinoa",
         "precio": 41500.0,
         "ingredientes": {
             "quinoa": 1,
             "zanahoria": 1,
-            "brócoli": 1
+            "br\u00f3coli": 1
         },
         "tipo": "vegano"
     },
-    "Hamburguesa veggie": {
+    "4": {
+        "nombre": "Hamburguesa veggie",
         "precio": 38500.75,
         "ingredientes": {
             "soja": 1,
@@ -37,7 +41,8 @@
         },
         "tipo": "vegetariano"
     },
-    "Tarta de calabaza": {
+    "5": {
+        "nombre": "Tarta de calabaza",
         "precio": 36500.0,
         "ingredientes": {
             "calabaza": 1,
@@ -47,7 +52,8 @@
         },
         "tipo": "vegetariano"
     },
-    "Ensalada César": {
+    "6": {
+        "nombre": "Ensalada C\u00e9sar",
         "precio": 35200.0,
         "ingredientes": {
             "pollo": 1,
@@ -55,9 +61,10 @@
             "queso": 1,
             "croutons": 1
         },
-        "tipo": "carnívoro"
+        "tipo": "carn\u00edvoro"
     },
-    "Sopa de lentejas": {
+    "7": {
+        "nombre": "Sopa de lentejas",
         "precio": 37200.5,
         "ingredientes": {
             "lentejas": 1,
@@ -67,7 +74,8 @@
         },
         "tipo": "vegano"
     },
-    "Risotto de hongos": {
+    "8": {
+        "nombre": "Risotto de hongos",
         "precio": 46500.0,
         "ingredientes": {
             "arroz": 1,
@@ -77,7 +85,8 @@
         },
         "tipo": "vegetariano"
     },
-    "Pollo al curry": {
+    "9": {
+        "nombre": "Pollo al curry",
         "precio": 52500.0,
         "ingredientes": {
             "pollo": 1,
@@ -85,16 +94,52 @@
             "arroz": 1,
             "crema": 1
         },
-        "tipo": "carnívoro"
+        "tipo": "carn\u00edvoro"
     },
-    "Tacos de maíz": {
+    "10": {
+        "nombre": "Tacos de ma\u00edz",
         "precio": 39800.0,
         "ingredientes": {
-            "maíz": 1,
+            "ma\u00edz": 1,
             "palta": 1,
             "porotos": 1,
             "cebolla": 1
         },
-        "tipo": "celíaco"
+        "tipo": "cel\u00edaco"
+    },
+    "11": {
+        "nombre": "Ratatuile",
+        "precio": 15000.0,
+        "ingredientes": {
+            "queso": 1,
+            "jamon": 2
+        },
+        "tipo": "vegetariano"
+    },
+    "12": {
+        "nombre": "",
+        "precio": 1.0,
+        "ingredientes": {
+            "carne": 5,
+            "queso": 10
+        },
+        "tipo": "carnivoro"
+    },
+    "9876": {
+        "nombre": "Jamon Y Quesooo",
+        "precio": 50000.0,
+        "ingredientes": {
+            "jamon": 10,
+            "queso": 55
+        },
+        "tipo": "carnivoro"
+    },
+    "22": {
+        "nombre": "Casca",
+        "precio": 23432.0,
+        "ingredientes": {
+            "carne": 1
+        },
+        "tipo": "carnivoro"
     }
 }
