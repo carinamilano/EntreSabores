@@ -36,3 +36,14 @@
 2025-10-23 20:16:27;Modificar carta;
 2025-10-23 20:16:29;Agregar plato;
 2025-10-23 20:16:53;Tomar pedido;
+2025-10-25 09:48:28;Mostrar carta;
+2025-10-25 09:48:53;Mostrar stock de ingredientes;
+2025-10-25 10:00:02;Modificar carta;
+2025-10-25 10:00:08;Agregar plato;
+2025-10-25 10:13:37;Mostrar carta;
+2025-10-25 10:26:24;Modificar carta;
+2025-10-25 10:26:26;Agregar plato;
+2025-10-25 10:32:57;Modificar carta;
+2025-10-25 10:33:00;Agregar plato;
+2025-10-25 10:39:44;Modificar carta;
+2025-10-25 10:39:47;Agregar plato;

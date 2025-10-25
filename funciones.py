@@ -51,7 +51,7 @@ def cargar_stock():
     try:
         arch = open("stock.csv", "rt", encoding="utf-8")
         for linea in arch:
-            ingrediente, cantidad = linea.strip().split(";")
+            ingrediente,cantidad = linea.strip().split(";")
             stock[ingrediente] = int(cantidad)
         arch.close()
     except IOError:
@@ -261,7 +261,6 @@ def numeroEntreRango(num1, num2, texto):
             break
         except ValueError:
             print("Error, debe ingresar opción válida")
-            continue
     return num
 
 # función GENERICA para ingresar un único número
@@ -274,7 +273,6 @@ def ingresar_num_entero(num,texto):
             break
         except ValueError:
             print ("Error! Opción no válida")
-            continue
     return n
 
 # funcion GENERICA para ingresar un numero mayor a N
@@ -287,7 +285,6 @@ def ingresar_num_mayor_a(num_base,texto):
             break
         except ValueError:
             print("Error, valor ingresado inválido")
-            continue
     return num
 
 # función GENERICA para ingresar un valor float positivo
@@ -300,7 +297,6 @@ def ingresar_valor_float_positivo(texto):
             break
         except ValueError:
             print("Error, valor ingresado inválido")
-            continue
     return num
 
 # función GENERICA para ingresar un string no númerico mayor a N caracteres
@@ -489,13 +485,13 @@ def submenu_modificar_carta(carta,stock,pedidos):
 
 def agregar_plato(carta):
     try:
-        archLec = open ("stock.csv","rt")
+        arch = open ("stock.csv", "rt", encoding="utf-8")
     except IOError:
         print ("Error al cargar archivos")
     else:
         dic_ingredientes = {}
         stock_nombres = []
-        for linea in archLec:
+        for linea in arch:
             nombre, cantidad = linea.strip().split(";")
             stock_nombres.append (nombre)
         
@@ -512,6 +508,11 @@ def agregar_plato(carta):
         plato_a_agregar = str_minimo_n_caracteres(3,"Ingrese el nombre del plato a agregar: ")
 
         precio = ingresar_valor_float_positivo(f"Ingrese el precio de {plato_a_agregar}: $")
+
+        print("\n🧂 Ingredientes disponibles en stock:\n")
+        for i in range(0, len(stock_nombres), 10):  # Muestra 10 ingredientes por línea
+            print(", ".join(stock_nombres[i:i + 10]))
+        print("-" * 70)
 
         while True:
             try: 
@@ -549,7 +550,7 @@ def agregar_plato(carta):
         "precio": float(precio),
         "ingredientes": dic_ingredientes,
         "tipo": plato_tipo }}
-        archLec.close()
+        arch.close()
         return nueva_entrada
     
 def guardar_agregar_plato (nueva_entrada):
@@ -559,12 +560,13 @@ def guardar_agregar_plato (nueva_entrada):
         datos.update(nueva_entrada)
 
         arch2 = open ("carta.json","wt",encoding="utf-8")
-        json.dump (datos,arch2,indent=4)
+        json.dump(datos, arch2, indent=4, ensure_ascii=False)
 
         print("Plato nuevo agregado correctamente a la carta.")
     except IOError:
         print("Error al guardar la carta.")
 
+# -------------- SUB2: ELIMINAR PLATO -----------------------#
 
 
 # -------------- MENÚ PRINCIPAL-----------------------#
