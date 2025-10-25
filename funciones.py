@@ -443,8 +443,11 @@ def submenu_modificar_carta(carta,stock,pedidos):
         registrar_evento ("Eliminar plato")
         #eliminar_plato()
     elif opcion == 3:
-        registrar_evento ("Modificar plato")
-        #modificar_plato()
+        registrar_evento("Modificar plato")
+        modificar_plato(carta)
+        menu_principal(carta, stock, pedidos)
+
+
 def mostrar_stock(carta,stock,pedidos):
     try:
         print("\n📦 STOCK DE INGREDIENTES 📦")
@@ -479,8 +482,10 @@ def submenu_modificar_carta(carta,stock,pedidos):
         carta = eliminar_plato(carta)
         menu_principal(carta,stock,pedidos)
     elif opcion == 3:
-        registrar_evento ("Modificar plato")
-        #modificar_plato()
+        registrar_evento("Modificar plato")
+        modificar_plato(carta)
+        menu_principal(carta, stock, pedidos)
+
 
 # -------------- SUB1: AGREGAR PLATO -----------------------#
 
@@ -497,7 +502,8 @@ def agregar_plato(carta):
             stock_nombres.append (nombre)
         
         while True:
-            try: 
+            try:
+                print("ID de platos ya utilizados:", ",".join(carta.keys()))
                 id_plato = str(ingresar_num_mayor_a(1,"Ingrese ID del plato: "))
                 if id_plato in carta:
                     raise ValueError
@@ -598,11 +604,94 @@ def eliminar_plato(carta):
 
         except ValueError as msg:
             print(msg)
-
     return carta
 
-# -------------- MENÚ PRINCIPAL-----------------------#
+# -------------- SUB3: MODIFICAR PLATO -------------------------------------------------------------------#
+def modificar_plato(carta):
+    try:
+        print("🍽️  PLATOS DISPONIBLES EN LA CARTA:")
+        for id_plato, datos in carta.items():
+            print(f"{id_plato}. {datos['nombre']} - ${datos['precio']} ({datos['tipo']})")
+        print("-" * 60)
 
+        id_a_modificar = str(numeroEntreRango(1, len(carta), "Ingrese el número del plato que desea modificar: "))
+        if id_a_modificar not in carta:
+            raise ValueError(" No existe un plato con ese número en la carta.")
+
+        plato = carta[id_a_modificar]
+        print(f"\n✏️ MODIFICANDO: {plato['nombre']}")
+        print("Presione Enter para mantener el valor actual.\n")
+
+        nuevo_nombre = input("Ingrese el nuevo nombre del plato (Enter para mantener): ").strip()
+        if nuevo_nombre != "":
+            if len(nuevo_nombre) < 4 or nuevo_nombre.isnumeric():
+                print("El nombre debe tener al menos 4 caracteres y no ser numérico. Se mantiene el actual.")
+            else:
+                plato["nombre"] = nuevo_nombre.title()
+
+        nuevo_precio = input("Ingrese el nuevo precio (Enter para mantener): ").strip()
+        if nuevo_precio != "":
+            try:
+                valor = float(nuevo_precio)
+                if valor <= 0:
+                    raise ValueError
+                plato["precio"] = valor
+            except ValueError:
+                print(" El precio debe ser numérico y mayor que cero. Se mantiene el actual.")
+
+        nuevo_tipo = input("Ingrese el nuevo tipo (carnivoro, vegetariano, vegano, celiaco) o Enter para mantener: ").lower().strip()
+        if nuevo_tipo != "":
+            if nuevo_tipo in ["carnivoro", "vegetariano", "vegano", "celiaco"]:
+                plato["tipo"] = nuevo_tipo
+            else:
+                print("Tipo inválido. Se mantiene el actual.")
+
+        stock_disponible = []
+        try:
+            arch_stock = open("stock.csv", "rt", encoding="utf-8")
+            for linea in arch_stock:
+                nombre, cantidad = linea.strip().split(";")
+                stock_disponible.append(nombre)
+            arch_stock.close()
+        except IOError:
+            print("No se pudo abrir stock.csv.")
+
+        print("\n🧂 LISTA DE INGREDIENTES DISPONIBLES:")
+        for i, ing in enumerate(stock_disponible, start=1):
+            print(f"{i} - {ing}")
+        print("-" * 50)
+        print("Ingrese el número del ingrediente a agregar y luego la cantidad.")
+        print("Cuando haya terminado, ingrese 0 para finalizar.\n")
+
+        nuevos_ingredientes = {}
+        while True:
+            try:
+                num_ing = numeroEntreRango(0, len(stock_disponible),"Ingrediente N° (0 para terminar): ")
+                if num_ing == 0:
+                    break
+                ingrediente_elegido = stock_disponible[num_ing - 1]
+                cantidad = ingresar_num_mayor_a(0, f"Ingrese la cantidad de '{ingrediente_elegido}': ")
+                nuevos_ingredientes[ingrediente_elegido] = cantidad
+            except ValueError as msg:
+                print(msg)
+        if nuevos_ingredientes:
+            plato["ingredientes"] = nuevos_ingredientes
+        else:
+            print("No se seleccionaron ingredientes nuevos. Se mantienen los actuales.")
+        carta[id_a_modificar] = plato
+        try:
+            arch = open("carta.json", "w", encoding="utf-8")
+            json.dump(carta, arch, ensure_ascii=False, indent=4)
+            arch.close()
+            print(f"\nPlato '{plato['nombre']}' modificado correctamente.")
+        except IOError:
+            print("Error al guardar los cambios en carta.json.")
+
+    except ValueError as msg:
+        print(f"Error en ingreso de datos: {msg}")
+
+
+# -------------- MENÚ PRINCIPAL---------------------------------------------------------#
 def menu_principal(carta, stock,pedidos):
     print("\n🍷 ----- Menú EntreSabores ----- 🍷")
     print(" 1️⃣  🧾 Tomar pedido")
