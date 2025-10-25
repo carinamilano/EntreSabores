@@ -106,3 +106,7 @@
 2025-10-25 16:16:19;Modificar carta;
 2025-10-25 16:16:21;Agregar plato;
 2025-10-25 16:18:20;Mostrar carta;
+2025-10-25 18:22:14;Ver reportes;
+2025-10-25 18:47:03;Ver reportes;
+2025-10-25 19:05:35;Ver reportes;
+2025-10-25 19:07:07;Ver reportes;

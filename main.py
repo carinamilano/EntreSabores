@@ -1,5 +1,6 @@
 # PROGRAMA PRINCIPAL - ENTRE SABORES
 
+
 from funciones import (
     generar_archivo_usuarios,
     log_in,

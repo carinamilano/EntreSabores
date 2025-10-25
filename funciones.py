@@ -2,6 +2,7 @@
 
 # MÓDULO DE FUNCIONES - ENTRESABORES
 
+from reportes import generar_ventas_aleatorias,total_recaudado,mesa_que_mas_consumio,generar_reporte_platos_top
 from datetime import datetime
 import json
 
@@ -701,9 +702,9 @@ def menu_principal(carta, stock,pedidos):
     print(" 5️⃣  ✏️ Modificar carta")
     print(" 6️⃣  📊 Ver reportes")
     print(" 0️⃣  🚪 Salir")
-
-    opcion = numeroEntreRango(0, 5, "Ingrese una opción: ")
-
+    print()
+    opcion = numeroEntreRango(0, 6, "Ingrese una opción: ")
+    print()
     if opcion == 1:
         registrar_evento("Tomar pedido")
         pedido = tomar_pedido(carta, stock,pedidos)
@@ -725,7 +726,15 @@ def menu_principal(carta, stock,pedidos):
         submenu_modificar_carta(carta,stock,pedidos)
     elif opcion == 6:
         registrar_evento("Ver reportes")
-        # ver_reportes()
+        generar_ventas_aleatorias(carta)  # genera ventas simuladas
+        total_recaudado(carta)  # muestra el total
+        mesa_que_mas_consumio(carta)  # muestra la mesa top
+        generar_reporte_platos_top(carta)
+    #   generar_reporte_ingredientes_consumidos(carta)
+    #   generar_reporte_ventas_horarias(carta)
+    #   generar_reporte_tipos_platos(carta)
+
+
 
 
 
