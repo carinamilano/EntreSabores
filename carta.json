@@ -8,7 +8,7 @@
             "pan rallado": 1,
             "papas": 2
         },
-        "tipo": "carn\u00edvoro"
+        "tipo": "carnívoro"
     },
     "2": {
         "nombre": "Pizza muzzarella",
@@ -26,7 +26,7 @@
         "ingredientes": {
             "quinoa": 1,
             "zanahoria": 1,
-            "br\u00f3coli": 1
+            "brócoli": 1
         },
         "tipo": "vegano"
     },
@@ -53,7 +53,7 @@
         "tipo": "vegetariano"
     },
     "6": {
-        "nombre": "Ensalada C\u00e9sar",
+        "nombre": "Ensalada César",
         "precio": 35200.0,
         "ingredientes": {
             "pollo": 1,
@@ -61,7 +61,7 @@
             "queso": 1,
             "croutons": 1
         },
-        "tipo": "carn\u00edvoro"
+        "tipo": "carnívoro"
     },
     "7": {
         "nombre": "Sopa de lentejas",
@@ -94,18 +94,17 @@
             "arroz": 1,
             "crema": 1
         },
-        "tipo": "carn\u00edvoro"
+        "tipo": "carnívoro"
     },
     "10": {
-        "nombre": "Tacos de ma\u00edz",
+        "nombre": "Tacos de maíz",
         "precio": 39800.0,
         "ingredientes": {
-            "ma\u00edz": 1,
+            "maíz": 1,
             "palta": 1,
             "porotos": 1,
             "cebolla": 1
         },
-        "tipo": "cel\u00edaco"
-    },
-
+        "tipo": "celíaco"
+    }
 }
