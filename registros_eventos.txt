@@ -47,3 +47,10 @@
 2025-10-25 10:33:00;Agregar plato;
 2025-10-25 10:39:44;Modificar carta;
 2025-10-25 10:39:47;Agregar plato;
+2025-10-25 11:27:55;Modificar carta;
+2025-10-25 11:28:02;Eliminar plato;
+2025-10-25 11:33:39;Modificar carta;
+2025-10-25 11:33:41;Eliminar plato;
+2025-10-25 11:34:50;Modificar carta;
+2025-10-25 11:34:51;Eliminar plato;
+2025-10-25 11:35:05;Mostrar carta;

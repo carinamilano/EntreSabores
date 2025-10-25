@@ -422,7 +422,7 @@ def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus 
     except IOError:
         print("Error con los archivos")
 
-# ------------- M4: MOSTRAR STOCK --------------#
+# ------------- M4: MODIFICAR CARTA --------------#
 def submenu_modificar_carta(carta,stock,pedidos):
     print("----MODIFICAR CARTA----")
     print ("1. Agregar plato")
@@ -473,10 +473,11 @@ def submenu_modificar_carta(carta,stock,pedidos):
         registrar_evento ("Agregar plato")
         nueva_entrada = agregar_plato(carta)
         guardar_agregar_plato (nueva_entrada)
-        menu_principal(carta, stock,pedidos)
+        menu_principal(carta,stock,pedidos)
     elif opcion == 2:
-        registrar_evento ("Eliminar plato")
-        #eliminar_plato()
+        registrar_evento("Eliminar plato")
+        carta = eliminar_plato(carta)
+        menu_principal(carta,stock,pedidos)
     elif opcion == 3:
         registrar_evento ("Modificar plato")
         #modificar_plato()
@@ -568,6 +569,37 @@ def guardar_agregar_plato (nueva_entrada):
 
 # -------------- SUB2: ELIMINAR PLATO -----------------------#
 
+def eliminar_plato(carta):
+    print("🍽️ Platos actuales en la carta:")
+    for id_plato, datos in carta.items():
+        print(f"{id_plato}. {datos['nombre']}")
+
+    while True:
+        try:
+            id_a_eliminar = input("Ingrese el número del plato que desea eliminar: ")
+
+            if id_a_eliminar.strip() == "":
+                raise ValueError("Debe ingresar un número de plato.")
+            if id_a_eliminar not in carta:
+                raise ValueError("No existe ese plato en la carta.")
+
+            del carta[id_a_eliminar]
+
+            try:
+                arch = open("carta.json", "w", encoding="utf-8")
+                json.dump(carta, arch, ensure_ascii=False, indent=4)
+                arch.close()
+            except IOError:
+                print(f"Error al guardar los cambios en carta")
+                break
+
+            print("Plato eliminado correctamente.")
+            break
+
+        except ValueError as msg:
+            print(msg)
+
+    return carta
 
 # -------------- MENÚ PRINCIPAL-----------------------#
 
