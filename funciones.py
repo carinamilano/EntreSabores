@@ -5,7 +5,7 @@
 from reportes import generar_ventas_aleatorias,total_recaudado,mesa_que_mas_consumio,generar_reporte_platos_top
 from datetime import datetime
 import json
-
+import random
 # -------------------- LOG IN -----------------------#
 
 def log_in():
@@ -315,95 +315,189 @@ def str_minimo_n_caracteres (n,texto):
 # -------------- M1: TOMAR PEDIDO -----------------------#
 
 def tomar_pedido(carta, stock, pedidos):
+    """
+    Toma pedidos por mesa:
+    - Usa `temp_stock` para descontar stock temporalmente mientras la mesa agrega ítems.
+    - Si la mesa confirma, se persiste temp_stock a stock.csv (usando guardar_stock).
+    - Si la mesa cancela, no se modifica el archivo ni el diccionario stock original.
+    """
+
     while True:
-        num_mesa = numeroEntreRango (0,10,"Ingrese el número de mesa(1-10). 0 para volver al menú: ")
+        num_mesa = numeroEntreRango(0, 10, "Ingrese el número de mesa(1-10). 0 para volver al menú: ")
         if num_mesa == 0:
             break
 
+        # Inicializo pedidos para la mesa si no existe (pero no confirmo aún)
         if num_mesa not in pedidos:
-            pedidos[num_mesa] = {}  # crear nueva entrada para la mesa
+            pedidos[num_mesa] = {}
 
-        carrito = {}  # plato -> cantidad pedida en esta sesión
+        # temp_stock = copia del stock real; se modifica durante la sesión de la mesa
+        temp_stock = {k.lower(): int(v) for k, v in stock.items()}
 
-        mostrar_carta(carta,stock,pedidos)
-        opciones = len (carta)
-        
+        # carrito es lo que esta mesa está pidiendo en ESTA sesión (no persistido hasta confirmar)
+        carrito = {}  # id_plato (str) -> cantidad pedida en esta sesión
+
+        mostrar_carta(carta, stock, pedidos)
+
         while True:
-            id_plato = numeroEntreRango (0,10,"Ingrese el id del plato (0 para terminar): ")
-            if id_plato == 0:
+            id_plato = input("Ingrese el id del plato (Vacío para terminar): ").strip()
+            if id_plato == "":
                 break
-            
-            id_plato = str (id_plato)
-            nombre_plato = carta[id_plato]['nombre']
-            
-            if str(id_plato) not in carta:
-                print("Plato inexistente, intente de nuevo")
-                continue
 
-            cantidad = ingresar_num_mayor_a(1,f"Ingrese la cantidad de '{nombre_plato}': ")
-
-            # cargar stock desde CSV
-            stock_dict = {}
             try:
-                arch_stock = open("stock.csv", "rt", encoding="utf-8")
-            except IOError:
-                print("No se pudo abrir stock.csv")
-            else:
-                for linea in arch_stock:
-                    nombre,cantidad_stock = linea.strip().split(";")
-                    stock_dict[nombre] = cantidad_stock
-                arch_stock.close()
+                if not id_plato in carta:  
+                    raise ValueError
+                
+            except ValueError:
+                print("Plato inexistente, intente de nuevo")
 
-            # verificar stock suficiente
+            nombre_plato = carta[id_plato]['nombre']
+                
+            cantidad = ingresar_num_mayor_a(1, f"Ingrese la cantidad de '{nombre_plato}': ")
+
+            # Verificar stock suficiente usando temp_stock (reserva temporal)
             ingredientes_necesarios = carta[id_plato]["ingredientes"]
 
             falta = []
-            for ingr, cant in ingredientes_necesarios.items():
-                stock_ingrediente = int(stock_dict[ingr.lower()])
-                if ingr.lower() not in stock_dict:
+            for ingr, cant_por_unidad in ingredientes_necesarios.items():
+                ingr_key = ingr.lower()
+                if ingr_key not in temp_stock:
                     falta.append(ingr)
-                elif stock_ingrediente < cant * cantidad:
-                    falta.append(ingr)
+                else:
+                    # cantidad total requerida para este item
+                    requerido = cant_por_unidad * cantidad
+                    if temp_stock[ingr_key] < requerido:
+                        falta.append(ingr)
 
             if falta:
                 print(f"No hay stock suficiente de: {', '.join(falta)}")
+                print("Revisá cantidades o elegí otro plato/ingrediente.")
                 continue
 
-            # descontar stock
-            for ingr, cant in ingredientes_necesarios.items():
-                stock_ingrediente = int(stock_dict[ingr.lower()])
-                stock_ingrediente -= cant * cantidad
+            # Si pasa la verificación: descontar de temp_stock (reserva temporal)
+            for ingr, cant_por_unidad in ingredientes_necesarios.items():
+                ingr_key = ingr.lower()
+                temp_stock[ingr_key] -= cant_por_unidad * cantidad
 
-            # actualizar CSV
-            try:
-                arch_stock = open("stock.csv", "wt", encoding="utf-8")
-            except IOError:
-                print("No se pudo actualizar stock.csv")
+            # Agregar al carrito (acumula si se agrega el mismo plato varias veces)
+            id_key = str(id_plato)  # uso str para normalizar en carrito/pedidos
+            if id_key in carrito:
+                carrito[id_key] += cantidad
             else:
-                arch_stock.write("ingrediente;cantidad\n")
-                for ingr, cant in stock_dict.items():
-                    arch_stock.write(f"{ingr};{cant}\n")
-                arch_stock.close()
+                carrito[id_key] = cantidad
 
-            # actualizar pedidos
-            if id_plato in pedidos[num_mesa]:
-                pedidos[num_mesa][id_plato] += cantidad
-            else:
-                pedidos[num_mesa][id_plato] = cantidad
+            print(f"Pedido agregado al carrito: {nombre_plato} x {cantidad}")
+            # Mostrar stock temporal (opcional, útil para debugging)
+            # print("Stock temporal (después de reservar):", temp_stock)
 
-            print(f"Pedido agregado: {nombre_plato} x {cantidad}")
-
-        # mostrar resumen mesa
-        if pedidos[num_mesa] and id_plato != "0":
-            print(f"\n Pedido mesa {num_mesa}:")
+        # Al terminar de agregar platos para la mesa, muestro resumen del carrito
+        if carrito:
+            print(f"\nResumen de la mesa {num_mesa}:")
             total = 0
-            for id_plato, cant in pedidos[num_mesa].items():
-                precio = carta[id_plato]["precio"] * cant
-                total += precio
-                print(f"- {nombre_plato} x {cant} → ${precio}")
-            print(f"Total a pagar: ${total}")
+            for id_k, cant in carrito.items():
+                # como carta puede tener claves int o str, busco la entrada correcta
+                key = id_k if id_k in carta else int(id_k)
+                nombre = carta[key]["nombre"]
+                precio = carta[key]["precio"]
+                subtotal = precio * cant
+                total += subtotal
+                print(f"- {nombre} x {cant} → ${subtotal: }")
+            print(f"Total a pagar: ${total: }")
+
+            # Pregunto si confirma o cancela
+            confirmar = input("Confirmar pedido y actualizar stock? (S/N): ").strip().lower()
+            if confirmar == 's' or confirmar == 'si':
+                # Persistir temp_stock a archivo y actualizar el diccionario stock en memoria
+                #try:
+                    # Uso tu función guardar_stock si existe
+
+                guardar_stock({k: v for k, v in temp_stock.items()})
+
+                # Actualizo el diccionario stock pasado por parámetro para que el resto del programa
+                # trabaje con los valores actualizados en memoria
+                stock.clear()
+                for k, v in temp_stock.items():
+                    stock[k] = v
+
+                # Finalmente, vuelco el carrito a pedidos (acumulo si ya había pedidos previos)
+                if num_mesa not in pedidos:
+                    pedidos[num_mesa] = {}
+                for id_k, cant in carrito.items():
+                    if id_k in pedidos[num_mesa]:
+                        pedidos[num_mesa][id_k] += cant
+                    else:
+                        pedidos[num_mesa][id_k] = cant
+
+                print("Pedido confirmado y stock actualizado.")
+            else:
+                # Si cancela, no se hace nada con stock ni con pedidos
+                print("Pedido cancelado. No se modificó el stock ni se guardó el pedido.")
+        else:
+            print("No se agregaron platos para esta mesa.")
 
     return pedidos
+
+
+# -------------- M2: CERRAR MESA -----------------------#
+def cerrar_mesa(carta,stock,pedidos):
+    if pedidos:
+        suma_mesa = 0
+        cantidad_platos = 0
+
+        print     ("---------MESAS ACTIVAS---------")
+        for num_mesa in pedidos:
+            print (f"MESA N° {num_mesa}")
+            print ("Pedido: ")
+            for id_plato in pedidos[num_mesa]:
+                print(f"ID: {id_plato} | {carta[id_plato]['nombre']} | Cantidad: {pedidos[num_mesa][id_plato]} | ${carta[id_plato]['precio']*pedidos[num_mesa][id_plato]}")
+                suma_mesa += carta[id_plato]['precio'] * pedidos[num_mesa][id_plato]
+                cantidad_platos += pedidos[num_mesa][id_plato]
+            print (f"Total Mesa N°{num_mesa}: ${suma_mesa}")
+            print ("-------------------------------")
+
+        while True:
+            try: 
+                mesa_a_cerrar = numeroEntreRango (0,10,"Ingrese la mesa que desea cerrar (0 para volver al menú): ")
+                if mesa_a_cerrar == 0:
+                    break
+
+                if mesa_a_cerrar not in pedidos:
+                    raise ValueError ("Mesa inactiva, reintente con otra mesa.")
+                break
+            except ValueError as msg:
+                print (msg)
+        
+        if mesa_a_cerrar != 0:
+            try:
+                arch = open("ventas.csv", "at", encoding="utf-8") 
+
+                plato = list(carta.keys())
+                
+                
+                for id_plato in pedidos[mesa_a_cerrar]:
+                    mesa = mesa_a_cerrar          # mesas del 1 al 10
+                    plato = id_plato   # id de plato
+                    cantidad_platos = pedidos[num_mesa][id_plato] 
+                    fecha = datetime.now().strftime("%Y-%m-%d")
+                    hora = datetime.now().strftime('%H:%M:%S')       # solo hora
+                    arch.write(f"{mesa};{fecha};{hora};{plato};{cantidad_platos}\n")
+
+                arch.close()
+                del pedidos[mesa_a_cerrar]
+                print(f"Se registró la venta de la mesa N° {num_mesa}")
+                print (f"Mesa N° {num_mesa} liberada")
+                cerrar_mesa(carta,stock,pedidos)
+
+            except IOError:
+                print(" Error al escribir el archivo")
+
+
+    else: 
+        print ("No hay ninguna mesa activa")
+
+        volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            menu_principal(carta, stock,pedidos)
 
 
 # -------------- M3: MOSTRAR CARTA -----------------------#
@@ -423,31 +517,7 @@ def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus 
     except IOError:
         print("Error con los archivos")
 
-# ------------- M4: MODIFICAR CARTA --------------#
-def submenu_modificar_carta(carta,stock,pedidos):
-    print("----MODIFICAR CARTA----")
-    print ("1. Agregar plato")
-    print ("2. Eliminar plato")
-    print ("3. Modificar plato")
-    print ("0. Salir")
-
-    opcion = numeroEntreRango (0,3,"Ingrese una opción: ")
-    if opcion == 0:
-        registrar_evento ("Menú principal")
-        menu_principal(carta, stock,pedidos)
-    elif opcion == 1:
-        registrar_evento ("Agregar plato")
-        nueva_entrada = agregar_plato(carta)
-        guardar_agregar_plato (nueva_entrada)
-        menu_principal(carta, stock,pedidos)
-    elif opcion == 2:
-        registrar_evento ("Eliminar plato")
-        #eliminar_plato()
-    elif opcion == 3:
-        registrar_evento("Modificar plato")
-        modificar_plato(carta)
-        menu_principal(carta, stock, pedidos)
-
+# ------------- M4: MOSTRAR STOCK --------------#
 
 def mostrar_stock(carta,stock,pedidos):
     try:
@@ -476,17 +546,15 @@ def submenu_modificar_carta(carta,stock,pedidos):
     elif opcion == 1:
         registrar_evento ("Agregar plato")
         nueva_entrada = agregar_plato(carta)
-        guardar_agregar_plato (nueva_entrada)
         menu_principal(carta,stock,pedidos)
     elif opcion == 2:
         registrar_evento("Eliminar plato")
-        carta = eliminar_plato(carta)
+        carta = eliminar_plato(carta,pedidos)
         menu_principal(carta,stock,pedidos)
     elif opcion == 3:
         registrar_evento("Modificar plato")
         modificar_plato(carta)
         menu_principal(carta, stock, pedidos)
-
 
 # -------------- SUB1: AGREGAR PLATO -----------------------#
 
@@ -559,25 +627,29 @@ def agregar_plato(carta):
         "ingredientes": dic_ingredientes,
         "tipo": plato_tipo }}
         arch.close()
-        return nueva_entrada
-    
-def guardar_agregar_plato (nueva_entrada):
-    try:
-        arch = open("carta.json", "rt", encoding="utf-8")
-        datos = json.load(arch)
-        datos.update(nueva_entrada)
 
-        arch2 = open ("carta.json","wt",encoding="utf-8")
-        json.dump(datos, arch2, indent=4, ensure_ascii=False)
+        try:
+            arch1 = open("carta.json", "rt", encoding="utf-8")
+            datos = json.load(arch1)
+            datos.update(nueva_entrada)
 
-        print("Plato nuevo agregado correctamente a la carta.")
-    except IOError:
-        print("Error al guardar la carta.")
+            arch2 = open ("carta.json","wt",encoding="utf-8")
+            json.dump(datos, arch2, indent=4, ensure_ascii=False)
+
+            arch1.close()
+            arch2.close()
+            carta.update(nueva_entrada)
+
+            print("Plato nuevo agregado correctamente a la carta.")
+            
+        except IOError:
+            print("Error al guardar la carta.")
+
 
 # -------------- SUB2: ELIMINAR PLATO -----------------------#
 
-def eliminar_plato(carta):
-    print("🍽️ Platos actuales en la carta:")
+def eliminar_plato(carta,pedidos):
+    print(" 🍽️  Platos actuales en la carta:")
     for id_plato, datos in carta.items():
         print(f"{id_plato}. {datos['nombre']}")
 
@@ -589,6 +661,12 @@ def eliminar_plato(carta):
                 raise ValueError("Debe ingresar un número de plato.")
             if id_a_eliminar not in carta:
                 raise ValueError("No existe ese plato en la carta.")
+            
+
+            for info in pedidos:
+                if id_a_eliminar in pedidos[info]:
+                    raise ValueError ("No se puede eliminar un plato ya pedido!")
+
 
             del carta[id_a_eliminar]
 
@@ -600,7 +678,7 @@ def eliminar_plato(carta):
                 print(f"Error al guardar los cambios en carta")
                 break
 
-            print("Plato eliminado correctamente.")
+            print(f"Plato {id_plato}. {datos['nombre']} eliminado correctamente.")
             break
 
         except ValueError as msg:
@@ -711,7 +789,8 @@ def menu_principal(carta, stock,pedidos):
         menu_principal(carta, stock,pedidos)
     elif opcion == 2:
         registrar_evento("Cerrar mesa")
-        #cerrar_mesa(pedidos)
+        cerrar_mesa(carta, stock,pedidos)
+        menu_principal(carta, stock,pedidos)
     elif opcion == 3:
         registrar_evento("Mostrar carta")
         mostrar_carta(carta,stock,pedidos)

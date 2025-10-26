@@ -13,7 +13,6 @@ from funciones import (
     mostrar_carta,
     submenu_modificar_carta,
     agregar_plato,
-    guardar_agregar_plato,
     eliminar_plato,
     modificar_plato,
     mostrar_stock,
