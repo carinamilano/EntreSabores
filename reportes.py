@@ -107,3 +107,41 @@ def generar_reporte_platos_top(carta):
         print(f"🥇 Archivo 'platos_top.csv' generado con los 10 platos más vendidos del {hoy}")
     except IOError:
         print("Error al generar platos_top.csv")
+
+def generar_reporte_ingredientes_masconsumidos(carta):
+#10 ingredientes más consumidos del día
+
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    consumo = {}  # ingrediente: cantidad total usada
+    try:
+        arch = open("ventas.csv", "rt", encoding="utf-8")
+        for linea in arch:
+            mesa, fecha, hora, id_plato, cantidad = linea.strip().split(";")
+            if fecha == hoy:
+                id_plato = str(id_plato)
+                cantidad = int(cantidad)
+                if id_plato in carta:
+                    ingredientes = carta[id_plato]["ingredientes"]
+                    for ingr, cant_por_plato in ingredientes.items():
+                        total_usado = cant_por_plato * cantidad
+                        if ingr in consumo:
+                            consumo[ingr] = consumo[ingr] + total_usado
+                        else:
+                            consumo[ingr] = total_usado
+        arch.close()
+# por cantidad consumida (de mayor a menor)
+        lista_ordenada = sorted(consumo.items(), key=lambda x: x[1], reverse=True)
+
+        # me agarro los 10 de la lista
+        top_10 = lista_ordenada[:10]
+        try:
+            arch2 = open("ingredientes_top.csv", "wt", encoding="utf-8")
+            for ingr, cant in top_10:
+                arch2.write(f"{ingr};{cant}\n")
+            arch2.close()
+            print(f"🥗 Archivo 'ingredientes_top.csv' generado con los 10 ingredientes más consumidos del {hoy}")
+        except IOError:
+            print("Error al escribir el archivo ingredientes_top.csv")
+
+    except IOError:
+        print("Error al leer el archivo ventas.csv")
