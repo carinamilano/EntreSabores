@@ -145,3 +145,31 @@ def generar_reporte_ingredientes_masconsumidos(carta):
 
     except IOError:
         print("Error al leer el archivo ventas.csv")
+
+def generar_reporte_ventas_horarias(carta):
+#ventas totales por hora de 19 a 24
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    ventas_por_hora = {hora: 0 for hora in range(19, 25)}  # 19,20,21,22,23,24
+    try:
+        arch = open("ventas.csv", "rt", encoding="utf-8")
+        for linea in arch:
+            mesa, fecha, hora, id_plato, cantidad = linea.strip().split(";")
+            if fecha == hoy:
+                hora = int(hora)
+                cantidad = int(cantidad)
+                id_plato = str(id_plato)
+                if hora >= 19 and hora <= 24 and id_plato in carta:
+                    precio = carta[id_plato]["precio"]
+                    total = precio * cantidad
+                    ventas_por_hora[hora] = ventas_por_hora[hora] + total
+        arch.close()
+        try:
+            arch2 = open("ventas_horarias.csv", "wt", encoding="utf-8")
+            for hora, total in ventas_por_hora.items():
+                arch2.write(f"{hora};{total:.2f}\n")
+            arch2.close()
+            print(f"⏰ Archivo 'ventas_horarias.csv' generado con las ventas por hora del {hoy}")
+        except IOError:
+            print("Error al escribir el archivo ventas_horarias.csv")
+    except IOError:
+        print("Error al leer el archivo ventas.csv")
