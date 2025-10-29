@@ -353,7 +353,7 @@ def tomar_pedido(carta, stock, pedidos):
                 
             except ValueError:
                 print("Plato inexistente, intente de nuevo")
-
+                continue
             nombre_plato = carta[id_plato]['nombre']
                 
             cantidad = ingresar_num_mayor_a(1, f"Ingrese la cantidad de '{nombre_plato}': ")
