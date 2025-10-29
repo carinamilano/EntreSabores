@@ -482,7 +482,7 @@ def cerrar_mesa(carta,stock,pedidos):
                     plato = id_plato   # id de plato
                     cantidad_platos = pedidos[num_mesa][id_plato] 
                     fecha = datetime.now().strftime("%Y-%m-%d")
-                    hora = datetime.now().strftime('%H:%M:%S')       # solo hora
+                    hora = datetime.now().strftime('%H')       # solo hora
                     arch.write(f"{mesa};{fecha};{hora};{plato};{cantidad_platos}\n")
 
                 arch.close()

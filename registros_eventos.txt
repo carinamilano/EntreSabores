@@ -9,3 +9,9 @@
 2025-10-29 14:39:19;Tomar pedido;
 2025-10-29 14:42:07;Tomar pedido;
 2025-10-29 14:48:38;Tomar pedido;
+2025-10-29 14:51:20;Tomar pedido;
+2025-10-29 14:52:24;Cerrar mesa;
+2025-10-29 14:53:07;Ver reportes;
+2025-10-29 15:00:21;Ver reportes;
+2025-10-29 15:00:31;Tomar pedido;
+2025-10-29 15:00:55;Ver reportes;
