@@ -173,3 +173,32 @@ def generar_reporte_ventas_horarias(carta):
             print("Error al escribir el archivo ventas_horarias.csv")
     except IOError:
         print("Error al leer el archivo ventas.csv")
+
+def generar_reporte_tipos_platos(carta):
+#reporte por tipo de platos
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    tipos = {"carnívoro": 0,"vegetariano": 0,"vegano": 0,"celíaco": 0}
+    try:
+        arch = open("ventas.csv", "rt", encoding="utf-8")
+        for linea in arch:
+            mesa, fecha, hora, id_plato, cantidad = linea.strip().split(";")
+            if fecha == hoy:
+                id_plato = str(id_plato)
+                cantidad = int(cantidad)
+                if id_plato in carta:
+                    tipo = carta[id_plato]["tipo"].lower()
+                    if tipo in tipos:
+                        tipos[tipo] = tipos[tipo] + cantidad
+                    else:
+                        tipos[tipo] = cantidad
+        arch.close()
+        try:
+            arch2 = open("tipos_consumidos.csv", "wt", encoding="utf-8")
+            for tipo, cant in tipos.items():
+                arch2.write(f"{tipo};{cant}\n")
+            arch2.close()
+            print(f"🥧 Archivo 'tipos_consumidos.csv' generado con los tipos de platos vendidos del {hoy}")
+        except IOError:
+            print("Error al escribir el archivo tipos_consumidos.csv")
+    except IOError:
+        print("Error al leer el archivo ventas.csv")

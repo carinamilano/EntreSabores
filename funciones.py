@@ -2,7 +2,7 @@
 
 # MÓDULO DE FUNCIONES - ENTRESABORES
 
-from reportes import generar_ventas_aleatorias,total_recaudado,mesa_que_mas_consumio,generar_reporte_platos_top,generar_reporte_ingredientes_masconsumidos,generar_reporte_ventas_horarias
+from reportes import generar_ventas_aleatorias,total_recaudado,mesa_que_mas_consumio,generar_reporte_platos_top,generar_reporte_ingredientes_masconsumidos,generar_reporte_ventas_horarias,generar_reporte_tipos_platos
 from datetime import datetime
 import json
 import random
@@ -851,7 +851,7 @@ def menu_principal(carta, stock,pedidos):
         generar_reporte_platos_top(carta)
         generar_reporte_ingredientes_masconsumidos(carta)
         generar_reporte_ventas_horarias(carta)
-    #   generar_reporte_tipos_platos(carta)
+        generar_reporte_tipos_platos(carta)
         volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
         if volver == 0:
             menu_principal(carta, stock,pedidos)
