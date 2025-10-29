@@ -117,6 +117,9 @@ def registrar_evento(opcion, archivo="registros_eventos.txt"):
         print("No se pudo crear registro de logs")
 
 
+
+
+
 # -------------- GESTIÓN DEL ARCHIVO JSON ----------------------#
 
 def cargar_carta():
@@ -337,7 +340,7 @@ def tomar_pedido(carta, stock, pedidos):
         # carrito es lo que esta mesa está pidiendo en ESTA sesión (no persistido hasta confirmar)
         carrito = {}  # id_plato (str) -> cantidad pedida en esta sesión
 
-        mostrar_carta(carta, stock, pedidos)
+        mostrar_carta_id()
 
         while True:
             id_plato = input("Ingrese el id del plato (Vacío para terminar): ").strip()
@@ -500,7 +503,9 @@ def cerrar_mesa(carta,stock,pedidos):
             menu_principal(carta, stock,pedidos)
 
 
-# -------------- M3: MOSTRAR CARTA -----------------------#
+# -------------- MOSTRAR CARTA (normal) -----------------------#
+# reemplazamos esta funcion por la de mostrar_carta_id() ya que implementamos recursividad
+
 
 def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus ingredientes y precio
     try:
@@ -517,6 +522,40 @@ def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus 
     except IOError:
         print("Error con los archivos")
 
+#---------------- M3: MOSTRAR CARTA EN ORDEN -----------------------#
+# Mostrar carta por ID (ascendente)
+def mostrar_carta_id (carta=None, ids=None, indice=0):
+    if carta is None:
+        try:
+            arch=open("carta.json","rt", encoding="utf-8")
+            carta=json.load(arch)
+            arch.close()
+        except IOError:
+            print ("Error al abrir archivo")
+
+    while True:
+        #Si no se pasaron los IDs, los obtenemos y los ordenamos
+        if ids is None: 
+            ids = sorted(carta.keys(), key = lambda x: int(x)) # ordenar por número ascendente
+            print("\n📜 CARTA (ordenada por ID ascendente)\n" + "-" * 45)
+            #print (ids)
+
+        # caso base: si ya mostramos todos los platos, terminamos
+        if indice == len(ids):
+            print("\nFin de la carta.\n")
+            break
+        
+        # mostramos el plato actual
+        id_actual = ids[indice]
+        datos = carta[id_actual]
+        print(f"\n🍽️  ID:{id_actual} {datos['nombre']}")
+        print(f"   💲 Precio: ${datos['precio']:.2f}")
+        print(f"   🏷️ Tipo: {datos['tipo']}")
+        print(f"   🧂 Ingredientes: {', '.join(datos['ingredientes'].keys())}")
+
+        # llamada recursiva para mostrar el siguiente plato
+        mostrar_carta_id(carta, ids, indice + 1)
+        break
 # ------------- M4: MOSTRAR STOCK --------------#
 
 def mostrar_stock(carta,stock,pedidos):
@@ -775,7 +814,7 @@ def menu_principal(carta, stock,pedidos):
     print("\n🍷 ----- Menú EntreSabores ----- 🍷")
     print(" 1️⃣  🧾 Tomar pedido")
     print(" 2️⃣  💵 Cerrar mesa")
-    print(" 3️⃣  📜 Mostrar carta")
+    print(" 3️⃣  📜 Mostrar carta (orden por)")
     print(" 4️⃣  📦 Mostrar stock de ingredientes")
     print(" 5️⃣  ✏️ Modificar carta")
     print(" 6️⃣  📊 Ver reportes")
@@ -793,7 +832,8 @@ def menu_principal(carta, stock,pedidos):
         menu_principal(carta, stock,pedidos)
     elif opcion == 3:
         registrar_evento("Mostrar carta")
-        mostrar_carta(carta,stock,pedidos)
+        #mostrar_carta(carta,stock,pedidos)
+        mostrar_carta_id()
         volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
         if volver == 0:
             menu_principal(carta, stock,pedidos)
@@ -812,6 +852,9 @@ def menu_principal(carta, stock,pedidos):
     #   generar_reporte_ingredientes_consumidos(carta)
     #   generar_reporte_ventas_horarias(carta)
     #   generar_reporte_tipos_platos(carta)
+        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
+        if volver == 0:
+            menu_principal(carta, stock,pedidos)
 
 
 
