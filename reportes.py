@@ -3,9 +3,7 @@ from datetime import datetime
 
 
 def generar_ventas_aleatorias(carta, cantidad=50):
-
 #Agrega ventas aleatorias mesa;fecha;hora;id_plato;cantidad
-
     try:
         arch = open("ventas.csv", "at", encoding="utf-8") #agregamos!!!
 
@@ -94,10 +92,10 @@ def generar_reporte_platos_top(carta):
         arch.close()
         # Convertimos el diccionario en lista de tuplas
         lista_platos = [(id, cant) for id, cant in conteo.items()]
-        # Ordenamos por cantidad (de mayor a menor) usando lambda
+        # usando lambda Ordena la lista lista_platos de mayor a menor según el segundo valor (x[1] cantidad vendida) de cada elemento.
         lista_ordenada = sorted(lista_platos, key=lambda x: x[1], reverse=True)
         # Tomamos los 10 primeros
-        top_10 = lista_ordenada[:10]
+        top_10 = lista_ordenada[:10] #slicing de lista
         # Guardamos el reporte CSV
         arch = open("platos_top.csv", "wt", encoding="utf-8")
         for id_plato, cantidad in top_10:
@@ -133,7 +131,7 @@ def generar_reporte_ingredientes_masconsumidos(carta):
         lista_ordenada = sorted(consumo.items(), key=lambda x: x[1], reverse=True)
 
         # me agarro los 10 de la lista
-        top_10 = lista_ordenada[:10]
+        top_10 = lista_ordenada[:10] #slicing de lista
         try:
             arch2 = open("ingredientes_top.csv", "wt", encoding="utf-8")
             for ingr, cant in top_10:

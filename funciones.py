@@ -6,9 +6,11 @@ from reportes import generar_ventas_aleatorias,total_recaudado,mesa_que_mas_cons
 from datetime import datetime
 import json
 import random
+
 # -------------------- LOG IN -----------------------#
 
 def log_in():
+    # Permite el ingreso al sistema validando usuario y contraseña desde archivo
     while True:
         usuario = input("Ingrese usuario: ")
         contrasena = input("Ingrese contraseña: ")
@@ -33,6 +35,7 @@ def log_in():
 
 # -------------- GENERACIÓN ARCHIVOS USUARIOS.TXT -----------------------#
 def generar_archivo_usuarios():
+    # Crea el archivo de usuarios inicial con contraseñas por defecto.
     dic_usuario = {
         "admin": "123",
         "mozo1": "abc"
@@ -48,6 +51,7 @@ def generar_archivo_usuarios():
 
 # -------------- GENERACIÓN ARCHIVOS STOCK.CSV-----------------------#
 def cargar_stock():
+    # Carga el stock de ingredientes desde el archivo CSV.
     stock = {}
     try:
         arch = open("stock.csv", "rt", encoding="utf-8")
@@ -95,6 +99,7 @@ def cargar_stock():
     return stock
 
 def guardar_stock(stock):
+    # Guarda los cambios realizados en el stock en el archivo CSV.
     try:
         arch = open("stock.csv", "wt", encoding="utf-8")
         for ingr, cant in stock.items():
@@ -104,6 +109,7 @@ def guardar_stock(stock):
         print("Error al guardar el archivo de stock.")
 
 def agregar_nuevo_ingrediente(stock):
+    # Agrega un nuevo ingrediente al stock (validando duplicados y valores).
     print("AGREGAR NUEVO INGREDIENTE AL STOCK:")
     print ()
     while True:
@@ -128,6 +134,7 @@ def agregar_nuevo_ingrediente(stock):
 # -------------- REGISTROS DEL LOG -----------------------#
 
 def registrar_evento(opcion, archivo="registros_eventos.txt"):
+    # Registra eventos del sistema en el archivo de bitácora.
     try:
         marca = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         arch = open(archivo, "at",encoding="utf-8")
@@ -135,8 +142,6 @@ def registrar_evento(opcion, archivo="registros_eventos.txt"):
         arch.close()
     except IOError:
         print("No se pudo crear registro de logs")
-
-
 
 
 
@@ -328,7 +333,7 @@ def str_minimo_n_caracteres (n,texto):
     while True:
         try:
             info = input(texto).strip()
-            if info.isdigit() or  len(info)<=n:
+            if info.isdigit() or  len(info)<=n:  #strings
                 raise ValueError
             break
         except ValueError:
@@ -338,12 +343,10 @@ def str_minimo_n_caracteres (n,texto):
 # -------------- M1: TOMAR PEDIDO -----------------------#
 
 def tomar_pedido(carta, stock, pedidos):
-    """
-    Toma pedidos por mesa:
-    - Usa `temp_stock` para descontar stock temporalmente mientras la mesa agrega ítems.
-    - Si la mesa confirma, se persiste temp_stock a stock.csv (usando guardar_stock).
-    - Si la mesa cancela, no se modifica el archivo ni el diccionario stock original.
-    """
+# Gestiona la toma de pedidos por mesa:
+# - Utiliza un stock temporal (temp_stock) para descontar ingredientes mientras se agregan platos.
+# - Al confirmar el pedido, actualiza el stock real y guarda los cambios en 'stock.csv' mediante guardar_stock().
+# - Si la mesa cancela, el stock original no se altera y no se modifica ningún archivo
 
     while True:
         num_mesa = numeroEntreRango(0, 10, "Ingrese el número de mesa(1-10). 0 para volver al menú: ")
@@ -381,7 +384,7 @@ def tomar_pedido(carta, stock, pedidos):
             # Verificar stock suficiente usando temp_stock (reserva temporal)
             ingredientes_necesarios = carta[id_plato]["ingredientes"]
 
-            falta = []
+            falta = [] #lista de ingredientes que faltan
             for ingr, cant_por_unidad in ingredientes_necesarios.items():
                 ingr_key = ingr.lower()
                 if ingr_key not in temp_stock:
@@ -463,6 +466,7 @@ def tomar_pedido(carta, stock, pedidos):
 
 # -------------- M2: CERRAR MESA -----------------------#
 def cerrar_mesa(carta,stock,pedidos):
+    # Cierra una mesa registrada: calcula el total del pedido, registra la venta en 'ventas.csv' y libera la mesa para nuevos pedidos.
     if pedidos:
         suma_mesa = 0
         cantidad_platos = 0
@@ -543,7 +547,7 @@ def mostrar_carta(carta,stock,pedidos): #muestra los platos de la carta con sus 
         print("Error con los archivos")
 
 #---------------- M3: MOSTRAR CARTA EN ORDEN -----------------------#
-# Mostrar carta por ID (ascendente)
+# Mostrar carta por ID (ascendente) #ACA IMPLEMENTAMOS RECURSIVIDAD
 def mostrar_carta_id (carta=None, ids=None, indice=0):
     if carta is None:
         try:
@@ -579,6 +583,7 @@ def mostrar_carta_id (carta=None, ids=None, indice=0):
 # ------------- M4: MOSTRAR STOCK --------------#
 
 def mostrar_stock(carta,stock,pedidos):
+    #Muestra el stock actual de ingredientes en consola
     try:
         print("\n📦 STOCK DE INGREDIENTES 📦")
         for ingrediente, cantidad in stock.items():
@@ -618,6 +623,7 @@ def submenu_modificar_carta(carta,stock,pedidos):
 # -------------- SUB1: AGREGAR PLATO -----------------------#
 
 def agregar_plato(carta):
+    # Agrega un nuevo plato a la carta.
     try:
         arch = open ("stock.csv", "rt", encoding="utf-8")
     except IOError:
@@ -708,6 +714,7 @@ def agregar_plato(carta):
 # -------------- SUB2: ELIMINAR PLATO -----------------------#
 
 def eliminar_plato(carta,pedidos):
+    # Elimina un plato existente de la carta.
     print(" 🍽️  Platos actuales en la carta:")
     for id_plato, datos in carta.items():
         print(f"{id_plato}. {datos['nombre']}")
@@ -746,6 +753,7 @@ def eliminar_plato(carta,pedidos):
 
 # -------------- SUB3: MODIFICAR PLATO -------------------------------------------------------------------#
 def modificar_plato(carta):
+    ## Modifica los datos de un plato existente.
     try:
         print("🍽️  PLATOS DISPONIBLES EN LA CARTA:")
         for id_plato, datos in carta.items():
