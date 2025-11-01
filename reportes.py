@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 
 
-def generar_ventas_aleatorias(carta, cantidad=120):
+def generar_ventas_aleatorias(carta, cantidad=50):
 
 #Agrega ventas aleatorias mesa;fecha;hora;id_plato;cantidad
 

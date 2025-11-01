@@ -100,9 +100,29 @@ def guardar_stock(stock):
         for ingr, cant in stock.items():
             arch.write(f"{ingr};{cant}\n")
         arch.close()
-        print("Archivo stock.csv guardado correctamente.")
     except IOError:
         print("Error al guardar el archivo de stock.")
+
+def agregar_nuevo_ingrediente(stock):
+    print("AGREGAR NUEVO INGREDIENTE AL STOCK:")
+    print ()
+    while True:
+        ingrediente = input("Ingrese el nombre del nuevo ingrediente, vacio para finalizar: ").strip().lower()
+        if ingrediente == "":
+            break
+        if ingrediente in stock:
+            print(f"El ingrediente '{ingrediente}' ya existe en el stock. Intente con otro nombre.\n")
+            continue
+        try:
+            cantidad = int(input(f"Ingrese cantidad inicial de '{ingrediente}': "))
+            if cantidad < 0:
+                raise ValueError
+            stock[ingrediente] = cantidad
+            print(f" '{ingrediente}' agregado correctamente con {cantidad} unidades.")
+        except ValueError:
+            print("Error: la cantidad debe ser un número entero positivo")
+
+    guardar_stock(stock)
 
 
 # -------------- REGISTROS DEL LOG -----------------------#
@@ -480,7 +500,7 @@ def cerrar_mesa(carta,stock,pedidos):
                 for id_plato in pedidos[mesa_a_cerrar]:
                     mesa = mesa_a_cerrar          # mesas del 1 al 10
                     plato = id_plato   # id de plato
-                    cantidad_platos = pedidos[num_mesa][id_plato] 
+                    cantidad_platos = pedidos[num_mesa][id_plato]
                     fecha = datetime.now().strftime("%Y-%m-%d")
                     hora = datetime.now().strftime('%H')       # solo hora
                     arch.write(f"{mesa};{fecha};{hora};{plato};{cantidad_platos}\n")
@@ -817,10 +837,11 @@ def menu_principal(carta, stock,pedidos):
     print(" 3️⃣  📜 Mostrar carta (orden por)")
     print(" 4️⃣  📦 Mostrar stock de ingredientes")
     print(" 5️⃣  ✏️ Modificar carta")
-    print(" 6️⃣  📊 Ver reportes")
+    print(" 6️⃣  🧺 Agregar nuevo ingrediente al stock")
+    print(" 7️⃣  📊 Ver reportes")
     print(" 0️⃣  🚪 Salir")
     print()
-    opcion = numeroEntreRango(0, 6, "Ingrese una opción: ")
+    opcion = numeroEntreRango(0, 7, "Ingrese una opción: ")
     print()
     if opcion == 1:
         registrar_evento("Tomar pedido")
@@ -844,17 +865,23 @@ def menu_principal(carta, stock,pedidos):
         registrar_evento("Modificar carta")
         submenu_modificar_carta(carta,stock,pedidos)
     elif opcion == 6:
+        registrar_evento("Agregar ingrediente")
+        agregar_nuevo_ingrediente(stock)
+        menu_principal(carta, stock, pedidos)
+    elif opcion == 7:
         registrar_evento("Ver reportes")
-        generar_ventas_aleatorias(carta)  # genera ventas simuladas
-        total_recaudado(carta)  # muestra el total
-        mesa_que_mas_consumio(carta)  # muestra la mesa top
+        generar_ventas_aleatorias(carta)
+        total_recaudado(carta)
+        mesa_que_mas_consumio(carta)
         generar_reporte_platos_top(carta)
         generar_reporte_ingredientes_masconsumidos(carta)
         generar_reporte_ventas_horarias(carta)
         generar_reporte_tipos_platos(carta)
-        volver = ingresar_num_entero(0,"Ingrese 0 para volver al menú: ")
+        volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
         if volver == 0:
-            menu_principal(carta, stock,pedidos)
+            menu_principal(carta, stock, pedidos)
+
+
 
 
 

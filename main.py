@@ -8,6 +8,7 @@ from funciones import (
     cargar_carta,
     guardar_carta,
     cargar_stock,
+    agregar_nuevo_ingrediente,
     guardar_stock,
     registrar_evento,
     mostrar_carta,
