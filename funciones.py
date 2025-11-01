@@ -842,7 +842,7 @@ def menu_principal(carta, stock,pedidos):
     print("\n🍷 ----- Menú EntreSabores ----- 🍷")
     print(" 1️⃣  🧾 Tomar pedido")
     print(" 2️⃣  💵 Cerrar mesa")
-    print(" 3️⃣  📜 Mostrar carta (orden por)")
+    print(" 3️⃣  📜 Mostrar carta")
     print(" 4️⃣  📦 Mostrar stock de ingredientes")
     print(" 5️⃣  ✏️ Modificar carta")
     print(" 6️⃣  🧺 Agregar nuevo ingrediente al stock")

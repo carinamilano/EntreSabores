@@ -47,3 +47,6 @@
 2025-11-01 14:53:24;Tomar pedido;
 2025-11-01 14:53:44;Cerrar mesa;
 2025-11-01 14:55:16;Ver reportes;
+2025-11-01 18:16:53;Modificar carta;
+2025-11-01 18:16:57;Agregar plato;
+2025-11-01 18:18:17;Mostrar carta;
