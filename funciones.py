@@ -878,15 +878,24 @@ def menu_principal(carta, stock,pedidos):
         menu_principal(carta, stock, pedidos)
     elif opcion == 7:
         registrar_evento("Ver reportes")
-        generar_ventas_aleatorias(carta)
-        total_recaudado(carta)
-        mesa_que_mas_consumio(carta)
-        generar_reporte_platos_top(carta)
-        generar_reporte_ingredientes_masconsumidos(carta)
-        generar_reporte_ventas_horarias(carta)
-        generar_reporte_tipos_platos(carta)
-        volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
-        if volver == 0:
+        try:
+            arch = open ("ventas.csv","rt")
+            arch.close()
+
+            generar_ventas_aleatorias(carta)
+            total_recaudado(carta)
+            mesa_que_mas_consumio(carta)
+            generar_reporte_platos_top(carta)
+            generar_reporte_ingredientes_masconsumidos(carta)
+            generar_reporte_ventas_horarias(carta)
+            generar_reporte_tipos_platos(carta)
+
+            volver = ingresar_num_entero(0, "Ingrese 0 para volver al menú: ")
+            if volver == 0:
+                menu_principal(carta, stock, pedidos)
+
+        except FileNotFoundError:
+            print ("No hay ventas cargadas. Volviendo al menú...")
             menu_principal(carta, stock, pedidos)
 
 
