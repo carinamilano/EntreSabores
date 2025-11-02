@@ -63,7 +63,7 @@ from funciones import (
 
 def main():
     generar_archivo_usuarios()
-    #usuario = log_in()
+    usuario = log_in()
     stock = cargar_stock()
     carta = cargar_carta()
     pedidos = {}
